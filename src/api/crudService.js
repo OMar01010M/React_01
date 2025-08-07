@@ -1,4 +1,4 @@
-const API_BASE = 'https://crudcrud.com/api/11a5652d404a459ba6d0eecba7a3c27e';
+const API_BASE = 'https://crudcrud.com/api/dc30132d08664687872697013d625c84';
 const RESOURCE = 'todos'; // You can change 'todos' to your preferred resource name
 
 export const crudAPI = {

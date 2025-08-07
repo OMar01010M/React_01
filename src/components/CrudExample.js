@@ -7,6 +7,8 @@ const CrudExample = () => {
     name: '', 
     description: '' 
   });
+  const [editItemId, setEditItemId] = useState(null);
+  const [editItem, setEditItem] = useState({ name: '', description: '' });
 
   // Fetch items on component mount
   useEffect(() => {
@@ -48,6 +50,35 @@ const CrudExample = () => {
     } catch (error) {
       console.error('Error deleting item:', error);
     }
+  };
+
+  const handleEditClick = (item) => {
+    setEditItemId(item._id);
+    setEditItem({ name: item.name, description: item.description });
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditItem({
+      ...editItem,
+      [name]: value
+    });
+  };
+
+  const handleEditSubmit = async () => {
+    setEditItemId(null); // Exit edit mode immediately
+    setEditItem({ name: '', description: '' });
+    try {
+      await crudAPI.update(editItemId, editItem);
+      await fetchItems(); // Then refresh the data
+    } catch (error) {
+      console.error('Error updating item:', error);
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditItemId(null);
+    setEditItem({ name: '', description: '' });
   };
 
   return (
@@ -103,23 +134,92 @@ const CrudExample = () => {
           <tbody>
             {items.map((item) => (
               <tr key={item._id}>
-                <td style={{ border: '1px solid #ddd', padding: '12px' }}>{item.name}</td>
-                <td style={{ border: '1px solid #ddd', padding: '12px' }}>{item.description}</td>
-                <td style={{ border: '1px solid #ddd', padding: '12px' }}>
-                  <button 
-                    onClick={() => handleDelete(item._id)}
-                    style={{ 
-                      padding: '6px 12px',
-                      backgroundColor: '#f44336',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
+                {editItemId === item._id ? (
+                  <>
+                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                      <input
+                        type="text"
+                        name="name"
+                        value={editItem.name}
+                        onChange={handleEditInputChange}
+                        style={{ padding: '6px', width: '90%' }}
+                      />
+                    </td>
+                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                      <input
+                        type="text"
+                        name="description"
+                        value={editItem.description}
+                        onChange={handleEditInputChange}
+                        style={{ padding: '6px', width: '90%' }}
+                      />
+                    </td>
+                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                      <button 
+                        onClick={handleEditSubmit}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#2196F3',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          marginRight: '8px'
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleEditCancel}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#9E9E9E',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>{item.name}</td>
+                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>{item.description}</td>
+                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                      <button 
+                        onClick={() => handleEditClick(item)}
+                        style={{
+                          padding: '6px 12px',
+                          backgroundColor: '#FFC107',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          marginRight: '8px'
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(item._id)}
+                        style={{ 
+                          padding: '6px 12px',
+                          backgroundColor: '#f44336',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </>
+                )}
               </tr>
             ))}
           </tbody>
