@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { crudAPI } from '../api/crudService';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const CrudExample = () => {
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({ 
-    name: '', 
-    description: '' 
-  });
+  const [newItem, setNewItem] = useState({ name: '', description: '' });
   const [editItemId, setEditItemId] = useState(null);
   const [editItem, setEditItem] = useState({ name: '', description: '' });
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
 
-  // Fetch items on component mount
   useEffect(() => {
     fetchItems();
   }, []);
@@ -37,7 +45,8 @@ const CrudExample = () => {
     try {
       await crudAPI.create(newItem);
       setNewItem({ name: '', description: '' });
-      fetchItems(); // Refresh the list
+      fetchItems();
+      setSnackbar({ open: true, message: 'Item added!' });
     } catch (error) {
       console.error('Error creating item:', error);
     }
@@ -46,7 +55,8 @@ const CrudExample = () => {
   const handleDelete = async (id) => {
     try {
       await crudAPI.delete(id);
-      fetchItems(); // Refresh the list
+      fetchItems();
+      setSnackbar({ open: true, message: 'Item deleted!' });
     } catch (error) {
       console.error('Error deleting item:', error);
     }
@@ -66,11 +76,12 @@ const CrudExample = () => {
   };
 
   const handleEditSubmit = async () => {
-    setEditItemId(null); // Exit edit mode immediately
+    setEditItemId(null);
     setEditItem({ name: '', description: '' });
     try {
       await crudAPI.update(editItemId, editItem);
-      await fetchItems(); // Then refresh the data
+      fetchItems();
+      setSnackbar({ open: true, message: 'Item updated!' });
     } catch (error) {
       console.error('Error updating item:', error);
     }
@@ -107,9 +118,8 @@ const CrudExample = () => {
 
   return (
     <div className="crud-container">
-      <h2>CRUD Operations</h2>
-      
-      <form onSubmit={handleSubmit} className="crud-form">
+      <h2 style={{ textAlign: 'center', marginBottom: 32 }}>CRUD Operations</h2>
+      <form onSubmit={handleSubmit} className="crud-form" style={{ marginBottom: 32, display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
         <input
           type="text"
           name="name"
@@ -117,6 +127,7 @@ const CrudExample = () => {
           onChange={handleInputChange}
           placeholder="Name"
           required
+          style={{ padding: 10, borderRadius: 6, border: '1px solid #c9c9c9', fontSize: '1rem' }}
         />
         <input
           type="text"
@@ -124,95 +135,92 @@ const CrudExample = () => {
           value={newItem.description}
           onChange={handleInputChange}
           placeholder="Description"
+          style={{ padding: 10, borderRadius: 6, border: '1px solid #c9c9c9', fontSize: '1rem' }}
         />
-        <button type="submit">
+        <Button type="submit" variant="contained" color="primary" sx={{ borderRadius: 2, fontWeight: 500 }}>
           Add Item
-        </button>
+        </Button>
       </form>
-
       {items.length > 0 ? (
-        <table className="crud-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item._id}>
-                {editItemId === item._id ? (
-                  <>
-                    <td>
+        <Grid container spacing={3}>
+          {items.map((item) => (
+            <Grid item xs={12} sm={6} key={item._id}>
+              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+                <CardContent>
+                  {editItemId === item._id ? (
+                    <>
                       <input
                         type="text"
                         name="name"
                         value={editItem.name}
                         onChange={handleEditInputChange}
+                        style={{ width: '100%', marginBottom: 12, padding: 8, borderRadius: 5, border: '1px solid #c9c9c9', fontSize: '1rem' }}
                       />
-                    </td>
-                    <td>
                       <input
                         type="text"
                         name="description"
                         value={editItem.description}
                         onChange={handleEditInputChange}
+                        style={{ width: '100%', marginBottom: 12, padding: 8, borderRadius: 5, border: '1px solid #c9c9c9', fontSize: '1rem' }}
                       />
-                    </td>
-                    <td>
-                      <button 
-                        className="save-btn"
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<SaveIcon />}
                         onClick={handleEditSubmit}
-                        style={{marginRight: '6px'}}
+                        sx={{ mr: 1, borderRadius: 2 }}
                       >
                         Save
-                      </button>
-                      <button
-                        type="button"
-                        className="cancel-btn"
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="inherit"
+                        startIcon={<CancelIcon />}
                         onClick={handleEditCancel}
+                        sx={{ borderRadius: 2 }}
                       >
                         Cancel
-                      </button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td>
-                      <span
-                        style={{ color: '#2563eb', textDecoration: 'underline', cursor: 'pointer' }}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Typography
+                        variant="h6"
+                        component="span"
+                        sx={{ color: '#2563eb', textDecoration: 'underline', cursor: 'pointer' }}
                         onClick={() => handleNameClick(item)}
                         title="View details"
                       >
                         {item.name}
-                      </span>
-                    </td>
-                    <td>{item.description}</td>
-                    <td>
-                      <button 
-                        className="edit-btn"
-                        onClick={() => handleEditClick(item)}
-                        style={{marginRight: '6px'}}
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className="delete-btn"
-                        onClick={() => handleDelete(item._id)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        {item.description}
+                      </Typography>
+                      <IconButton color="primary" onClick={() => handleEditClick(item)} sx={{ mr: 1 }}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton color="error" onClick={() => handleDelete(item._id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       ) : (
-        <p style={{ marginTop: '20px', textAlign: 'center' }}>No items found. Add your first item!</p>
+        <Typography variant="body1" align="center" sx={{ mt: 4 }}>
+          No items found. Add your first item!
+        </Typography>
       )}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={2500}
+        onClose={() => setSnackbar({ open: false, message: '' })}
+        message={snackbar.message}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </div>
   );
 };
