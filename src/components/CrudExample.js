@@ -82,10 +82,10 @@ const CrudExample = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="crud-container">
       <h2>CRUD Operations</h2>
       
-      <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+      <form onSubmit={handleSubmit} className="crud-form">
         <input
           type="text"
           name="name"
@@ -93,7 +93,6 @@ const CrudExample = () => {
           onChange={handleInputChange}
           placeholder="Name"
           required
-          style={{ marginRight: '10px', padding: '8px' }}
         />
         <input
           type="text"
@@ -101,34 +100,19 @@ const CrudExample = () => {
           value={newItem.description}
           onChange={handleInputChange}
           placeholder="Description"
-          style={{ marginRight: '10px', padding: '8px' }}
         />
-        <button 
-          type="submit"
-          style={{ 
-            padding: '8px 16px', 
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
+        <button type="submit">
           Add Item
         </button>
       </form>
 
       {items.length > 0 ? (
-        <table style={{ 
-          width: '100%', 
-          borderCollapse: 'collapse',
-          marginTop: '20px'
-        }}>
+        <table className="crud-table">
           <thead>
             <tr>
-              <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Name</th>
-              <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Description</th>
-              <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Actions</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -136,50 +120,34 @@ const CrudExample = () => {
               <tr key={item._id}>
                 {editItemId === item._id ? (
                   <>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                    <td>
                       <input
                         type="text"
                         name="name"
                         value={editItem.name}
                         onChange={handleEditInputChange}
-                        style={{ padding: '6px', width: '90%' }}
                       />
                     </td>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                    <td>
                       <input
                         type="text"
                         name="description"
                         value={editItem.description}
                         onChange={handleEditInputChange}
-                        style={{ padding: '6px', width: '90%' }}
                       />
                     </td>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                    <td>
                       <button 
+                        className="save-btn"
                         onClick={handleEditSubmit}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#2196F3',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          marginRight: '8px'
-                        }}
+                        style={{marginRight: '6px'}}
                       >
                         Save
                       </button>
                       <button
                         type="button"
+                        className="cancel-btn"
                         onClick={handleEditCancel}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#9E9E9E',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer'
-                        }}
                       >
                         Cancel
                       </button>
@@ -187,33 +155,19 @@ const CrudExample = () => {
                   </>
                 ) : (
                   <>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>{item.name}</td>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>{item.description}</td>
-                    <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                    <td>{item.name}</td>
+                    <td>{item.description}</td>
+                    <td>
                       <button 
+                        className="edit-btn"
                         onClick={() => handleEditClick(item)}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#FFC107',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          marginRight: '8px'
-                        }}
+                        style={{marginRight: '6px'}}
                       >
                         Edit
                       </button>
                       <button 
+                        className="delete-btn"
                         onClick={() => handleDelete(item._id)}
-                        style={{ 
-                          padding: '6px 12px',
-                          backgroundColor: '#f44336',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer'
-                        }}
                       >
                         Delete
                       </button>
@@ -225,7 +179,7 @@ const CrudExample = () => {
           </tbody>
         </table>
       ) : (
-        <p style={{ marginTop: '20px' }}>No items found. Add your first item!</p>
+        <p style={{ marginTop: '20px', textAlign: 'center' }}>No items found. Add your first item!</p>
       )}
     </div>
   );
