@@ -81,6 +81,30 @@ const CrudExample = () => {
     setEditItem({ name: '', description: '' });
   };
 
+  const handleNameClick = (item) => {
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(`
+      <html>
+        <head>
+          <title>${item.name} - Details</title>
+          <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; padding: 40px; }
+            .details-container { background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px; max-width: 400px; margin: 40px auto; }
+            h2 { margin-top: 0; color: #2563eb; }
+            p { font-size: 1.1rem; color: #22223b; }
+          </style>
+        </head>
+        <body>
+          <div class="details-container">
+            <h2>${item.name}</h2>
+            <p><strong>Description:</strong> ${item.description || '<em>No description</em>'}</p>
+          </div>
+        </body>
+      </html>
+    `);
+    newWindow.document.close();
+  };
+
   return (
     <div className="crud-container">
       <h2>CRUD Operations</h2>
@@ -155,7 +179,15 @@ const CrudExample = () => {
                   </>
                 ) : (
                   <>
-                    <td>{item.name}</td>
+                    <td>
+                      <span
+                        style={{ color: '#2563eb', textDecoration: 'underline', cursor: 'pointer' }}
+                        onClick={() => handleNameClick(item)}
+                        title="View details"
+                      >
+                        {item.name}
+                      </span>
+                    </td>
                     <td>{item.description}</td>
                     <td>
                       <button 
