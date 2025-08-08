@@ -1,4 +1,4 @@
-const API_BASE = 'https://crudcrud.com/api/dc30132d08664687872697013d625c84';
+const API_BASE = 'https://crudcrud.com/api/1d438e85558945fdb2b29c448144e7bd';
 const RESOURCE = 'todos'; // You can change 'todos' to your preferred resource name
 
 export const crudAPI = {
@@ -35,7 +35,11 @@ export const crudAPI = {
       },
       body: JSON.stringify(data),
     });
-    return await response.json();
+    if (!response.ok) {
+      throw new Error(`Failed to update resource with id ${id}: ${response.status}`);
+    }
+    // Some backends (e.g., crudcrud.com) return an empty body for PUT. Return a boolean.
+    return true;
   },
 
   // Delete (DELETE)

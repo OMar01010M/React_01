@@ -14,9 +14,9 @@ import CancelIcon from '@mui/icons-material/Cancel';
 
 const CrudExample = () => {
   const [items, setItems] = useState([]);
-  const [newItem, setNewItem] = useState({ name: '', description: '' });
+  const [newItem, setNewItem] = useState({ name: '', email: '' });
   const [editItemId, setEditItemId] = useState(null);
-  const [editItem, setEditItem] = useState({ name: '', description: '' });
+  const [editItem, setEditItem] = useState({ name: '', email: '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
 
   useEffect(() => {
@@ -32,6 +32,7 @@ const CrudExample = () => {
     }
   };
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewItem({
@@ -44,9 +45,9 @@ const CrudExample = () => {
     e.preventDefault();
     try {
       await crudAPI.create(newItem);
-      setNewItem({ name: '', description: '' });
+      setNewItem({ name: '', email: '' });
       fetchItems();
-      setSnackbar({ open: true, message: 'Item added!' });
+      setSnackbar({ open: true, message: 'Signed up!' });
     } catch (error) {
       console.error('Error creating item:', error);
     }
@@ -64,7 +65,7 @@ const CrudExample = () => {
 
   const handleEditClick = (item) => {
     setEditItemId(item._id);
-    setEditItem({ name: item.name, description: item.description });
+    setEditItem({ name: item.name, email: item.email || item.description || '' });
   };
 
   const handleEditInputChange = (e) => {
@@ -76,20 +77,29 @@ const CrudExample = () => {
   };
 
   const handleEditSubmit = async () => {
+    // Optimistic UI update
+    const previousItems = items;
+    setItems((currentItems) =>
+      currentItems.map((it) =>
+        it._id === editItemId ? { ...it, name: editItem.name, email: editItem.email } : it
+      )
+    );
     setEditItemId(null);
-    setEditItem({ name: '', description: '' });
+    setEditItem({ name: '', email: '' });
     try {
-      await crudAPI.update(editItemId, editItem);
-      fetchItems();
+      await crudAPI.update(editItemId, { name: editItem.name, email: editItem.email });
       setSnackbar({ open: true, message: 'Item updated!' });
     } catch (error) {
       console.error('Error updating item:', error);
+      // Roll back optimistic update on failure
+      setItems(previousItems);
+      setSnackbar({ open: true, message: 'Failed to update item' });
     }
   };
 
   const handleEditCancel = () => {
     setEditItemId(null);
-    setEditItem({ name: '', description: '' });
+    setEditItem({ name: '', email: '' });
   };
 
   const handleNameClick = (item) => {
@@ -108,7 +118,7 @@ const CrudExample = () => {
         <body>
           <div class="details-container">
             <h2>${item.name}</h2>
-            <p><strong>Description:</strong> ${item.description || '<em>No description</em>'}</p>
+            <p><strong>Email:</strong> ${item.email || item.description || '<em>N/A</em>'}</p>
           </div>
         </body>
       </html>
@@ -130,15 +140,16 @@ const CrudExample = () => {
           style={{ padding: 10, borderRadius: 6, border: '1px solid #c9c9c9', fontSize: '1rem' }}
         />
         <input
-          type="text"
-          name="description"
-          value={newItem.description}
+          type="email"
+          name="email"
+          value={newItem.email}
           onChange={handleInputChange}
-          placeholder="Description"
+          placeholder="Email"
+          required
           style={{ padding: 10, borderRadius: 6, border: '1px solid #c9c9c9', fontSize: '1rem' }}
         />
         <Button type="submit" variant="contained" color="primary" sx={{ borderRadius: 2, fontWeight: 500 }}>
-          Add Item
+          Signup
         </Button>
       </form>
       {items.length > 0 ? (
@@ -157,9 +168,9 @@ const CrudExample = () => {
                         style={{ width: '100%', marginBottom: 12, padding: 8, borderRadius: 5, border: '1px solid #c9c9c9', fontSize: '1rem' }}
                       />
                       <input
-                        type="text"
-                        name="description"
-                        value={editItem.description}
+                        type="email"
+                        name="email"
+                        value={editItem.email}
                         onChange={handleEditInputChange}
                         style={{ width: '100%', marginBottom: 12, padding: 8, borderRadius: 5, border: '1px solid #c9c9c9', fontSize: '1rem' }}
                       />
@@ -194,7 +205,7 @@ const CrudExample = () => {
                         {item.name}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {item.description}
+                        {item.email || item.description}
                       </Typography>
                       <IconButton color="primary" onClick={() => handleEditClick(item)} sx={{ mr: 1 }}>
                         <EditIcon />
